@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,minimal-ui">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-fullscreen" content="no">
+    <title>title</title>
+</head>
+<link rel="stylesheet" href="/static/css/bootstrap.3.3.7.css">
+<script type="text/javascript" src="/static/js/vue.min.js"></script>
+<script type="text/javascript" src="/static/js/vue-resource.js"></script>
+<script type="text/javascript" src="/static/js/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="/static/js/popper.min.js"></script>
+<script type="text/javascript" src="/static/js/popmsg.js"></script>
+<script type="text/javascript" src="/static/js/showTips.js"></script>
+<script type="text/javascript" src="/static/js/axios.js"></script>
+<script type="text/javascript" src="/static/js/bootstrap.3.3.7.js"></script>
+<script type="text/javascript" src="/static/js/jQuery.print.js"></script>
+<body>
+
+<div id="app">
+
+    <div class="tabDiv">
+
+        <ul id="myTab" class="nav nav-tabs">
+            <!--  -->
+            <!-- 标签与页面使用href属性连接 -->
+            <!-- 页面一 -->
+            <li class="active">
+                <a href="#home" data-toggle="tab">
+                    未办结
+                </a>
+            </li>
+            <!-- 页面二 -->
+            <li>
+                <a href="#addInfo" data-toggle="tab" @click="addFunction">
+                    添加
+                </a>
+            </li>
+            <!-- 页面三 -->
+            <li>
+                <a href="#overTask" data-toggle="tab">
+                    已办结
+                </a>
+            </li>
+            <!-- 页面四 -->
+            <li>
+                <a href="#taskPrint" data-toggle="tab">
+                    详情与打印
+                </a>
+            </li>
+        </ul>
+        <div id="myTabContent" class="tab-content">
+
+            <!-- 未办结任务 -->
+            <div class="tab-pane fade in active" id="home">
+                <!-- 任务栏 -->
+                <div v-for="(task,i) in taskingList" style="margin-top: 15px">
+                    <div class="panel panel-default" @click="itemClick(i)">
+                        <div class="panel-heading">
+                            [${task.Enterprisecode}]
+                        </div>
+                        <div class="panel-body">
+                            <table>
+                                <tr>
+                                    <td>负责人:</td>
+                                    <td>${task.Chargeperson}(${task.Connect})</td>
+                                </tr>
+                                <tr>
+                                    <td>企业名称:</td>
+                                    <td>${task.Enterprisename}</td>
+                                </tr>
+                                <tr>
+                                    <td>经营地址:</td>
+                                    <td>${task.Regionname} ${task.Address}</td>
+                                </tr>
+                                <tr>
+                                    <td>入户状态:</td>
+                                    <td>${task.ManagementState}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 添加检查表 -->
+            <div class="tab-pane fade" id="addInfo">
+                <div style="margin-top:15px;">
+
+
+                    <form class="form-horizontal" role="form" id="updateForm">
+                        <div class="form-group">
+                            <label for="Enterprisename" class="col-sm-1 control-label">网吧名称</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" v-model="check.Enterprisename"
+                                       id="Enterprisename" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="Regionname" class="col-sm-1 control-label">所属区县</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" v-model="check.Regionname"
+                                       id="Regionname" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="Address" class="col-sm-1 control-label">详细地址</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" v-model="check.Address"
+                                       id="Address">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="Checktime" class="col-sm-1 control-label">检查时间</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" v-model="check.Checktime"
+                                       id="Checktime" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="Enterprisecode" class="col-sm-1 control-label">网吧编码</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" v-model="check.Enterprisecode"
+                                       id="Enterprisecode" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="Chargeperson" class="col-sm-1 control-label">法人代表</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" v-model="check.Chargeperson"
+                                       id="Chargeperson">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="Connect" class="col-sm-1 control-label">联系电话</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" v-model="check.Connect"
+                                       id="Connect">
+                            </div>
+                        </div>
+
+                        <!-- 实名制落实情况 -->
+                        <div class="form-group">
+                            <label for="Connect" class="col-sm-1 control-label">实名制落实情况</label>
+                            <div class="col-sm-10">
+                                <table align="center" class="table table-bordered"
+                                       style="text-align: center">
+                                    <tr>
+                                        <td>姓名</td>
+                                        <td>出生日期</td>
+                                        <td>备注</td>
+                                        <td>操作</td>
+                                    </tr>
+                                    <tr v-for="(info,i) in realnamecheck">
+                                        <td v-text="info.Interviewername"></td>
+                                        <td v-text="info.Interviewerbirth"></td>
+                                        <td v-text="info.Reason"></td>
+                                        <td>
+                                            <input type="button" class="btn btn-danger" @click="delRealname(i)"
+                                                   value="删除">
+                                        </td>
+                                    </tr>
+                                    <tr v-show="realnamecheck==null||realnamecheck.length < 1">
+                                        <td colspan="4">
+                                            暂无统计数据
+                                        </td>
+                                    </tr>
+                                </table>
+
+                            </div>
+                            <div class="col-sm-offset-1 col-sm-10">
+                                <input type="button" class="btn btn-default btn-block"
+                                       style="border: 1px dashed #dcdcdc;"
+                                       data-toggle="modal" data-target="#myModal" value="+ 添加实名制记录">
+                            </div>
+
+                        </div>
+
+                        <!-- 检查项目 -->
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">检查项目</label>
+                            <div class=" col-sm-10" id="parentDiv">
+                                <h5><span style="color: red;">* </span> 请选择<span style="color: red;"> 不合格 </span>项目</h5>
+                                <div class="checkbox" v-for="(item,i) in items">
+                                    <label @click="clickItem(i)">
+                                        <input type="checkbox">${item.Itemname}
+                                    </label>
+                                    <input type="file" multiple="multiple" style="display: none;">
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 上传并提交 -->
+                        <div class="form-group">
+                            <div class="col-sm-offset-1 col-sm-10">
+                                <input type="button" class="btn btn-primary" @click="buttonClick" value="上传并提交">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 已办结任务 -->
+            <div class="tab-pane fade" id="overTask">
+                <!-- 任务栏 -->
+                <div v-for="(task,i) in taskedList" style="margin-top: 15px">
+                    <div class="panel panel-default" @click="taskedClick(i)">
+                        <div class="panel-heading">
+                            [${task.Enterprisecode}]
+                        </div>
+                        <div class="panel-body">
+                            <table>
+                                <tr>
+                                    <td>负责人:</td>
+                                    <td>${task.Chargeperson}(${task.Connect})</td>
+                                </tr>
+                                <tr>
+                                    <td>企业名称:</td>
+                                    <td>${task.Enterprisename}</td>
+                                </tr>
+                                <tr>
+                                    <td>经营地址:</td>
+                                    <td>${task.Regionname} ${task.Address}</td>
+                                </tr>
+                                <tr>
+                                    <td>入户状态:</td>
+                                    <td>${task.ManagementState}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 任务详情与打印 -->
+
+            <div class="tab-pane fade" id="taskPrint">
+                <div id="all">
+                    <!--startprint-->
+                    <div style="text-align: center;padding: 25px;">
+                        <h1 style="margin: 0px auto">网吧日常检查表</h1>
+                    </div>
+                    <table border="2" style="width: 100%; text-align: center">
+                        <tr>
+                            <td width="20%">网吧名称</td>
+                            <td width="30%" v-text="check.Enterprisename"></td>
+                            <td width="20%">所属区县</td>
+                            <td v-text="check.Regionname"></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                网吧地址
+                            </td>
+                            <td colspan="3" v-text="check.Address"></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                检查时间
+                            </td>
+                            <td colspan="3" v-text="check.Checktime"></td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3">检察人员</td>
+                            <td>姓名</td>
+                            <td colspan="2">单位</td>
+                        </tr>
+                        <tr>
+                            <td v-text=""></td>
+                            <td colspan="2">赤峰市公安局//分局网安大队</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td colspan="2">赤峰市公安局//分局网安大队</td>
+                        </tr>
+                        <tr>
+                            <td id="rowSpanId">检查项目</td>
+                            <td>项目名称</td>
+                            <td>是否合格</td>
+                            <td>图片</td>
+                        </tr>
+                        <tr v-for="(item,i) in itemsResultList">
+                            <td v-text="item.itemname"></td>
+                            <td v-text="item.checkresult"></td>
+                            <td>
+                                <span v-for="p in item.imgs" style="padding: 5px;">
+                                    <img :src="p" width="40%">
+                                </span>
+                                <p v-show="item.imgs.length==0">无</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td id="realRowSpanId">网吧上网实名制落实</td>
+                            <td>出生年月日</td>
+                            <td>姓名</td>
+                            <td>备注</td>
+                        </tr>
+                        <tr v-for="realname in realnamecheck">
+                            <td v-text="realname.Interviewerbirth"></td>
+                            <td v-text="realname.Interviewername"></td>
+                            <td v-text="realname.Reason"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">检查人(签名)</td>
+                            <td colspan="2"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">记录人(签名)</td>
+                            <td colspan="2"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">网吧法人代表、负责人或工作人员(签名)</td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </table>
+                    <br>
+                    <p>检查项目共计 ${items.length} 项,有
+                        <span style="color: red; font-weight: bold;">
+                             ${noPass}
+                        </span>
+
+                        项不合格
+                    </p>
+                    <p>抽查上网实名制落实情况,有
+                        <span style="color: red; font-weight: bold;">
+                             ${realnamecheck.length}
+                        </span>
+                        人不符合情况</p>
+                    <br>
+                    <!--endprint-->
+                </div>
+
+
+                <div id="printOrder">
+                    <button class="btn btn-warning btn-block" @click="printOrderInfo">打印检查单</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- 跳转提示"先选择单位" -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabelDel">
+                        添加实名制记录
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <form role="form">
+                        <div class="form-group">
+                            <label>姓名</label>
+                            <input type="text" class="form-control" v-model="Interviewername">
+                            <br>
+                        </div>
+                        <div class="form-group">
+                            <label>出生日期</label>
+                            <input type="date" class="form-control" v-model="Interviewerbirth">
+                            <br>
+                        </div>
+                        <div class="form-group">
+                            <label>原因及备注</label>
+                            <input type="text" class="form-control" v-model="Reason">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" aria-hidden="true"
+                            @click="addRealnameInfo">
+                        确定
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+</div>
+
+<script>
+    // import axios from "axios";
+    // import qs from "qs";
+    new Vue({
+        delimiters: ['${', '}'],//修改vue的占位符设置,默认是{},与beego冲突
+        el: "#app",
+        data() {
+            return {
+                barList: [],//网吧列表
+                regionList: [],//区县列表
+                taskingList: [],//未办结任务列表
+                taskedList: [],//已办结任务列表
+                visitList: [],//调查员列表
+                realnamecheck: [],//实名制统计
+                Interviewername: "",//被检查人姓名
+                Interviewerbirth: "",//被检查人出生日期
+                Reason: "",//原因及备注
+                orderId: "",//编辑的任务id
+                inputFileFlag: 0,
+                items: [],//检查项目
+                //检查企业信息
+                check: {
+                    Enterprisename: "",//企业名称
+                    Regionname: "",//所在区县
+                    Address: "",//详细地址
+                    Checktime: "",//检查时间
+                    Enterprisecode: "",//网吧编码
+                    Chargeperson: "",//法人代表
+                    Connect: "",//联系电话
+                    Checkname: "",//检查人
+                },
+                itemsResultList: [],//检查项目结果列表
+                noPass: 0,//不合格项目数量
+            }
+        },
+        created() {
+            this.initData();
+        },
+        methods: {
+            //查询已办结任务详情
+            getCheckedTaskDetail() {
+                $('#myTab li:eq(3) a').tab('show');//首先跳转到详情打印界面
+                var vm = this;
+                vm.noPass = 0;//不合格项目数量赋初值
+
+                //企业基本信息
+                // alert(vm.orderId);
+                for (var i = 0; i < vm.taskedList.length; i++) {
+                    if (vm.orderId == vm.taskedList[i].Id) {//获取到任务详情
+                        vm.check.Address = vm.taskedList[i].Address;//网吧详细地址
+                        vm.check.Enterprisename = vm.taskedList[i].Enterprisename;//网吧名称
+                        vm.check.Regionname = vm.taskedList[i].Regionname;
+                    }
+                }
+                vm.itemsResultList = [];
+                //查询检查项目结果列表
+                $.get("/admin/GetItemresultList", {
+                    checkid: vm.orderId
+                }, function (response) {
+                    if (response.ErrCode == -5) {
+                        showTips("用户未登录", "error");
+                        setTimeout(function () {
+                            var protocol = window.location.protocol;
+                            var host = window.location.host;
+                            top.location.href = protocol + "//" + host;
+                        }, 500);
+                    } else if (response.ErrCode == 0) {
+                        const IdList = response.Result.itemIdList;
+                        const ItemList = response.Result.itemList;
+                        console.log(ItemList);
+                        // for (var i = 0; i < IdList.length; i++) {//id集合
+                        console.log(vm.items);
+                        for (var j = 0; j < vm.items.length; j++) {//所有项目结合
+                            // if (IdList[i].Itemid == vm.items[j].Id) {//有图片记录
+                            var itemname = vm.items[j].Itemname;
+                            var checkresult = "合格";//合格
+                            var imgs = [];
+                            for (var k = 0; k < ItemList.length; k++) {//检查结果结合
+                                if (ItemList[k].Itemid == vm.items[j].Id) {
+                                    imgs.push(ItemList[k].Imgpath);
+                                    checkresult = "不合格";//不合格
+                                    vm.check.Checktime = ItemList[k].Createtime;
+                                }
+                            }
+                            var ttt = {
+                                itemname: itemname,
+                                checkresult: checkresult,
+                                imgs: imgs,
+                            }
+                            if (ttt.imgs.length > 0) {
+                                vm.noPass++;
+                            }
+                            vm.itemsResultList.push(ttt);
+                        }
+                        $("#rowSpanId").attr("rowspan", vm.itemsResultList.length * 1 + 1);
+                        console.log(vm.itemsResultList);
+                        // }
+                        // }
+                    } else {
+                        showTips(response.ErrMsg, "error");
+                    }
+                })
+                //查询实名制落实记录表
+
+            },
+
+            //已办结的任务,跳转到详情打印界面
+            taskedClick(index) {
+                this.orderId = this.taskedList[index].Id;
+                this.getPrintData();
+            },
+
+            //获取打印界面数据
+            getPrintData() {
+                //查询该任务的检查项目详情
+                this.getCheckedTaskDetail();
+                //查询该任务的实名制检查详情
+                this.getRealnameList();
+            },
+
+            //获取检查项目列表
+            getItemsList() {
+                var vm = this;
+                $.get("/admin/GetItemsList", function (response) {
+                    if (response.ErrCode == -5) {
+                        showTips("用户未登录", "error");
+                        setTimeout(function () {
+                            var protocol = window.location.protocol;
+                            var host = window.location.host;
+                            top.location.href = protocol + "//" + host;
+                        }, 500);
+                    } else if (response.ErrCode == 0) {
+                        vm.items = response.Result;
+                    } else {
+                        showTips(response.ErrMsg, "error");
+                    }
+                })
+            },
+
+            //删除实名制检查记录
+            delRealname(index) {
+                console.log("删除的行id为======");
+                console.log(index);
+                var vm = this;
+                $.post("/admin/DelRealnameInfo", {
+                    id: this.realnamecheck[index].Id
+                }, function (response) {
+                    if (response.ErrCode == -5) {
+                        showTips("用户未登录", "error");
+                        setTimeout(function () {
+                            var protocol = window.location.protocol;
+                            var host = window.location.host;
+                            top.location.href = protocol + "//" + host;
+                        }, 500);
+                    } else if (response.ErrCode == 0) {
+                        showTips("删除成功", "success");
+                        vm.getRealnameList();
+                    } else {
+                        showTips(response.ErrMsg, "error");
+                    }
+                })
+            },
+
+            //添加实名制检查信息到数据库
+            addRealnameInfo() {
+                if (this.Interviewername == "") {
+                    showTips("姓名不能为空!", "error");
+                    return
+                }
+                if (this.Interviewerbirth == "") {
+                    showTips("出生日期不能为空!", "error");
+                    return
+                }
+                var vm = this;
+                $.post("/admin/AddRealnameInfo", {
+                    checkinfoId: this.orderId,
+                    Interviewername: this.Interviewername,
+                    Interviewerbirth: this.Interviewerbirth,
+                    Reason: this.Reason,
+                }, function (response) {
+                    if (response.ErrCode == -5) {
+                        showTips("用户未登录", "error");
+                        setTimeout(function () {
+                            var protocol = window.location.protocol;
+                            var host = window.location.host;
+                            top.location.href = protocol + "//" + host;
+                        }, 500);
+                    } else if (response.ErrCode == 0) {
+                        showTips("添加成功", "success");
+                        vm.Interviewername = "";
+                        vm.Interviewerbirth = "";
+                        vm.Reason = "";
+                        vm.getRealnameList();
+                    } else {
+                        showTips(response.ErrMsg, "error");
+                    }
+                });
+            },
+
+            //获取实名制记录列表
+            getRealnameList() {
+                var vm = this;
+                $.get("/admin/GetRealnameList", {
+                    checkinfoId: this.orderId,
+                }, function (response) {
+                    if (response.ErrCode == -5) {
+                        showTips("用户未登录", "error");
+                        setTimeout(function () {
+                            var protocol = window.location.protocol;
+                            var host = window.location.host;
+                            top.location.href = protocol + "//" + host;
+                        }, 500);
+                    } else if (response.ErrCode == 0) {
+                        vm.realnamecheck = response.Result;
+                        $("#realRowSpanId").attr("rowspan", vm.realnamecheck.length * 1 + 1);
+                    } else {
+                        showTips(response.ErrMsg, "error");
+                    }
+                });
+            },
+
+            //保存检查信息(图片)
+            buttonClick() {
+
+                var data = new FormData();
+                var fileIndex = [];
+                for (var i = 0; i < this.items.length; i++) {
+                    if ($("#file" + this.items[i].Id).val() != undefined) {
+                        fileIndex.push(this.items[i].Id);
+                        for (var j = 0; j < $("#file" + this.items[i].Id)[0].files.length; j++) {
+                            var file = $("#file" + this.items[i].Id)[0].files[j];
+                            data.append("file" + this.items[i].Id, file);
+                        }
+                    }
+                }
+                data.append("fileIndex", fileIndex);//选择的检查项目编号
+                data.append("checkinfoid", this.orderId);//任务编号
+                var vm = this;
+                //上传文件到后台
+                $.ajax({
+                        url: "/admin/AddItemresultInfo",
+                        type: "POST",
+                        data: data,
+                        processData: false,
+                        contentType: false,
+                        success: function (response) {
+                            if (response.ErrCode == -5) {
+                                showTips("用户未登录", "error");
+                                setTimeout(function () {
+                                    var protocol = window.location.protocol;
+                                    var host = window.location.host;
+                                    top.location.href = protocol + "//" + host;
+                                }, 500);
+                            } else if (response.ErrCode == 0) {
+                                showTips("保存成功", "success");
+                                //todo 查询任务详情
+                                vm.getTaskList();//重新获取未办结任务
+                                vm.getTaskedList();//重新获取已办结任务
+                                vm.getPrintData();//对打印界面赋值
+                                $('#myTab li:eq(3) a').tab('show');
+                            } else {
+                                showTips(response.ErrMsg, "error");
+                            }
+                        }
+                    }
+                );
+            },
+
+            //打印检查单
+            printOrderInfo() {
+                // $(this).css("display", "none");
+                // var headstr = "<html><head><title></title></head><body>";
+                // var footstr = "</body>";
+                // var printData = document.getElementById("all").innerHTML;// 获得 div 里的所有 html 数据
+                // var oldstr = document.body.innerHTML;
+                // try {
+                //     var Wsh = new ActiveXObject("WScript.Shell");
+                //     HKEY_Key = "header";
+                //     Wsh.RegWrite(HKEY_Root + HKEY_Path + HKEY_Key, "");
+                //     HKEY_Key = "footer";
+                //     Wsh.RegWrite(HKEY_Root + HKEY_Path + HKEY_Key, "");
+                // } catch (e) {
+                // }
+                // document.body.innerHTML = headstr + printData + footstr;
+                // window.print();
+                // document.body.innerHTML = oldstr;
+                // return false;
+                $("#all").print();
+            },
+
+            //初始化函数
+            initData() {
+                var vm = this;
+                var date = new Date();
+                var year = date.getFullYear(); //获取当前年份
+                var mon = date.getMonth() + 1; //获取当前月份
+                var da = date.getDate(); //获取当前日
+                var h = date.getHours(); //获取小时
+                var m = date.getMinutes(); //获取分钟
+                var s = date.getSeconds(); //获取秒
+                var time = year + "-" + (mon > 10 ? mon : ("0" + mon)) +
+                    "-" + (da > 10 ? da : ("0" + da)) +
+                    " " + (h > 10 ? h : ("0" + h)) + ":"
+                    + (m > 10 ? m : ("0" + m)) + ":"
+                    + (s > 10 ? s : ("0" + s));
+                vm.check.Checktime = time;
+                this.getRegionList();
+            },
+
+            //初始化"未办结"任务列表结合
+            getTaskList() {
+                this.taskingList = [];
+                //查询当前用户未完结任务列表
+                axios.get("/admin/GetTaskList", {
+                    params: {orderstate: 1}//订单状态为1时,表示查询未办结状态的任务
+                }).then(response => {
+                    if (response.data.ErrCode == -5) {
+                        showTips("用户未登录", "error");
+                        setTimeout(function () {
+                            var protocol = window.location.protocol;
+                            var host = window.location.host;
+                            top.location.href = protocol + "//" + host;
+                        }, 500);
+                    } else if (response.data.ErrCode == 0) {
+                        var taskTemp = response.data.Result;
+                        for (var i = 0; response.data.Result != null && i < response.data.Result.length; i++) {
+                            var Chargeperson = "";//负责人
+                            var Connect = "";//联系方式
+                            var Enterprisename = "";//企业名称
+                            var Regionname = "";//区县名称
+                            var Address = "";//详细地址
+                            var Enterprisecode = "";//企业编码
+                            for (var j = 0; j < this.barList.length; j++) {
+                                if (taskTemp[i].Internetbarid == this.barList[j].Id) {
+                                    Enterprisecode = this.barList[j].Enterprisecode;
+                                    Chargeperson = this.barList[j].Chargeperson;
+                                    Connect = this.barList[j].Connect;
+                                    Address = this.barList[j].Address;
+                                    Enterprisename = this.barList[j].Enterprisename;//网吧名称
+                                }
+                            }
+                            for (var k = 0; k < this.regionList.length; k++) {
+                                if (taskTemp[i].Communityid == this.regionList[k].Id) {
+                                    Regionname = this.regionList[k].Regionname;//所属区县
+                                }
+                            }
+                            var task = {
+                                Id: taskTemp[i].Id,
+                                Enterprisename: Enterprisename,
+                                Regionname: Regionname,
+                                Enterprisecode: Enterprisecode,
+                                Connect: Connect,
+                                Address: Address,
+                                Chargeperson: Chargeperson,
+                                ManagementState: "局领导 网监一中队20180801号",
+                            }
+                            this.taskingList.push(task);
+                        }
+                        this.getTaskedList();
+                    }
+                }).catch(error => {
+                    console.log("获取任务列表失败");
+                    console.log(error);
+                })
+            },
+
+            //初始化"已办结"任务列表结合
+            getTaskedList() {
+                this.taskedList = [];
+                axios.get("/admin/GetTaskList", {
+                    params: {orderstate: 2}//订单状态为2时,表示查询已办结状态的任务
+                }).then(response => {
+                    if (response.data.ErrCode == -5) {
+                        showTips("用户未登录", "error");
+                        setTimeout(function () {
+                            var protocol = window.location.protocol;
+                            var host = window.location.host;
+                            top.location.href = protocol + "//" + host;
+                        }, 500);
+                    } else if (response.data.ErrCode == 0) {
+                        var taskTemp = response.data.Result;
+                        for (var i = 0; response.data.Result != null && i < response.data.Result.length; i++) {
+                            var Chargeperson = "";//负责人
+                            var Connect = "";//联系方式
+                            var Enterprisename = "";//企业名称
+                            var Regionname = "";//区县名称
+                            var Address = "";//详细地址
+                            var Enterprisecode = "";//企业编码
+                            for (var j = 0; j < this.barList.length; j++) {
+                                if (taskTemp[i].Internetbarid == this.barList[j].Id) {
+                                    Enterprisecode = this.barList[j].Enterprisecode;
+                                    Chargeperson = this.barList[j].Chargeperson;
+                                    Connect = this.barList[j].Connect;
+                                    Address = this.barList[j].Address;
+                                    Enterprisename = this.barList[j].Enterprisename;//网吧名称
+                                }
+                            }
+                            for (var k = 0; k < this.regionList.length; k++) {
+                                if (taskTemp[i].Communityid == this.regionList[k].Id) {
+                                    Regionname = this.regionList[k].Regionname;//所属区县
+                                }
+                            }
+                            var task = {
+                                Id: taskTemp[i].Id,
+                                Enterprisename: Enterprisename,
+                                Regionname: Regionname,
+                                Enterprisecode: Enterprisecode,
+                                Connect: Connect,
+                                Address: Address,
+                                Chargeperson: Chargeperson,
+                                ManagementState: "局领导 网监一中队20180801号",
+                            }
+                            this.taskedList.push(task);
+                        }
+                    }
+                }).catch(error => {
+                    console.log("获取任务列表失败");
+                    console.log(error);
+                })
+            },
+
+            // 查询区县信息
+            getRegionList() {
+                axios.get("/admin/GetRegionList").then(response => {
+                        if (response.data.ErrCode == -5) {
+                            showTips("用户未登录", "error");
+                            setTimeout(function () {
+                                var protocol = window.location.protocol;
+                                var host = window.location.host;
+                                top.location.href = protocol + "//" + host;
+                            }, 500);
+                        } else if (response.data.ErrCode == 0) {
+                            this.regionList = response.data.Result;
+                            this.getBarList();
+                        } else {
+                            showTips("获取地区列表失败", "error");
+                        }
+                    }
+                ).catch(error => {
+                    console.log("获取地区列表失败");
+                    console.log(error);
+                })
+            },
+
+            //获取网吧信息
+            getBarList() {
+                axios.get("/admin/GetBarList").then(response => {
+                    if (response.data.ErrCode == -5) {
+                        showTips("用户未登录", "error");
+                        setTimeout(function () {
+                            var protocol = window.location.protocol;
+                            var host = window.location.host;
+                            top.location.href = protocol + "//" + host;
+                        }, 500);
+                    } else if (response.data.ErrCode == 0) {
+                        this.barList = response.data.Result;
+                        this.getVisitList();
+                    } else {
+                        showTips("获取网吧列表失败", "error");
+                    }
+                }).catch(error => {
+                    console.log("获取网吧列表失败");
+                    console.log(error);
+                })
+            },
+
+            //查询调查员列表
+            getVisitList() {
+                axios.get("/admin/GetVisitList").then(response => {
+                    if (response.data.ErrCode == -5) {
+                        showTips("用户未登录", "error");
+                        setTimeout(function () {
+                            var protocol = window.location.protocol;
+                            var host = window.location.host;
+                            top.location.href = protocol + "//" + host;
+                        }, 500);
+                    } else if (response.data.ErrCode == 0) {
+                        this.visitList = response.data.Result;
+                        this.getTaskList();
+                        this.getItemsList();//查询检查项目列表
+                    }
+                }).catch(error => {
+                    console.log("获取调查员列表失败");
+                    console.log(error);
+                })
+            },
+
+            //选择未办结单位,跳转到添加信息界面
+            itemClick(index) {
+                $('#myTab li:eq(1) a').tab('show');//切换到添加检查信息tab
+                this.orderId = this.taskingList[index].Id;//任务编号
+                this.check.Enterprisename = this.taskingList[index].Enterprisename;//企业名称
+                this.check.Regionname = this.taskingList[index].Regionname;//区县
+                this.check.Address = this.taskingList[index].Address;//详细地址
+                this.check.Chargeperson = this.taskingList[index].Chargeperson;//法人
+                this.check.Enterprisecode = this.taskingList[index].Enterprisecode;//企业编码
+                this.check.Connect = this.taskingList[index].Connect;//联系方式
+                this.getRealnameList();//查询实名制记录
+            },
+
+            //勾选检查不合格的条款
+            clickItem(index) {
+                this.inputFileFlag++;
+                var ch = $("#parentDiv div:eq(" + index + ") input[type='checkbox']").prop("checked");
+                if (this.inputFileFlag == 2) {
+                    if (ch) {
+                        $("#parentDiv div:eq(" + index + ") input[type='file']").css("display", "block");
+                        $("#parentDiv div:eq(" + index + ") input[type='file']").attr("id", "file" + this.items[index].Id);
+                        this.inputFileFlag = 0;
+                    } else {
+                        $("#parentDiv div:eq(" + index + ") input[type='file']").css("display", "none");
+                        $("#parentDiv div:eq(" + index + ") input[type='file']").val("");
+                        this.inputFileFlag = 0;
+                    }
+                }
+                // console.log("lable");
+                // console.log(vm);
+                // vm.children("input[type='file']").css("display", "block");
+                // $("#parentDiv div:eq(" + index + ") input[type='file']").css("display", "block");
+            },
+
+
+            addFunction() {
+                // alert("test alert");
+                // $("#myModalSelect").modal('hide');//隐藏弹框
+                showTips("请选择任务!", "error");
+                setTimeout(function () {
+                    $('#myTab li:eq(0) a').tab('show');//切换到未办结任务tab
+                }, 1500);
+            },
+
+
+            //设置某个tab处于active
+            //$(function () {
+            //     $('#myTab li:eq(1) a').tab('show');
+            //});
+        },
+
+    })
+    ;
+    // $('a[href="#addInfo"]').on('shown.bs.tab', function () {
+    //
+    //     // e.target // 激活的标签页
+    //     // e.relatedTarget // 前一个激活的标签页
+    // })
+</script>
+
+
+<style>
+    .tabDiv {
+        margin: 10px auto;
+        /*border: 1px solid black;*/
+        /*width: 500px;*/
+        padding: 10px;
+    }
+</style>
+</body>
+</html>

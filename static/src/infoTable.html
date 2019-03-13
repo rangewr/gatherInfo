@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>检查任务管理</title>
+</head>
+<link rel="stylesheet" href="/static/css/bootstrap.min.css">
+<script type="text/javascript" src="/static/js/vue.min.js"></script>
+<script type="text/javascript" src="/static/js/vue-resource.js"></script>
+<script type="text/javascript" src="/static/js/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="/static/js/popper.min.js"></script>
+<script type="text/javascript" src="/static/js/popmsg.js"></script>
+<script type="text/javascript" src="/static/js/showTips.js"></script>
+<script type="text/javascript" src="/static/js/axios.js"></script>
+<script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+<body>
+<div id="app">
+    <div class="addDiv">
+        <button type="button" class="btn btn-warning " data-toggle="modal" data-target="#myModalAdd">
+            新增任务
+        </button>
+    </div>
+
+    <div class="tableDiv">
+        <table class="table table-hover" style="text-align: center">
+            <thead>
+            <tr>
+                <th width="10%">编号</th>
+                <th width="10%">所属区县</th>
+                <th width="10%">网吧名称</th>
+                <th width="10%">检查员</th>
+                <th width="20%">表单日期</th>
+                <th width="20%">表单状态</th>
+                <th width="20%">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="(data,i) in taskList">
+                <td v-text="data.Id"></td>
+                <td v-text="data.Communityid"></td>
+                <td v-text="data.Internetbarid"></td>
+                <td v-text="data.Investigatorid"></td>
+                <td v-text="data.Createtime"></td>
+                <td>
+                    <button type="button" v-bind:class="{'btn-success': data.Orderstate == 1}"
+                            class="btn btn-xs">
+                        ${data.Orderstate == 1? "未办结":"已完结"}
+                    </button>
+                </td>
+                <td>
+                    <button @click="updateInfo(i)" type="button" class="btn btn-primary btn-xs" data-toggle="modal"
+                            data-target="#myModal">
+                        修 改
+                    </button>
+                    <button @click="delInfo(i)" type="button" class="btn btn-danger btn-xs" data-toggle="modal"
+                            data-target="#myModalDel">
+                        删 除
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+            <tfoot>
+            <tr>
+                <td colspan="4">
+                </td>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+
+
+    <!-- 修改弹框 -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+
+                    <h4 class="modal-title" id="myModalLabel">
+                        修改调查表
+                    </h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form role="form">
+                        <div class="form-group">
+                            <label for="commUp">所属区县</label>
+                            <div class="input-group" id="commUp">
+                                <input type="text" class="form-control  dropdown-toggle" data-toggle="dropdown"
+                                       readonly style="background-color: white"
+                                       v-model="regionName">
+                                <div class="input-group-btn">
+                                    <ul class="dropdown-menu" style="padding-left: 10px;width: 100%;">
+                                        <li v-for="(com,i) in regionList" @click="regionSelect(i)">${com.Regionname}
+                                        </li>
+                                    </ul>
+                                </div><!-- /btn-group -->
+                            </div><!-- /input-group -->
+                            <br>
+                            <label for="busiNameUp">网吧名称</label>
+                            <div class="input-group" id="busiNameUp">
+                                <input type="text" class="form-control  dropdown-toggle" data-toggle="dropdown"
+                                       readonly style="background-color: white"
+                                       v-model="enterpriseName">
+                                <div class="input-group-btn">
+                                    <ul class="dropdown-menu" style="padding-left: 10px;width: 100%;">
+                                        <li v-for="(com,i) in relationBarList" @click="internetbarSelect(i)">
+                                            ${com.Enterprisename}
+                                        </li>
+                                    </ul>
+                                </div><!-- /btn-group -->
+                            </div><!-- /input-group -->
+
+                            <br>
+                            <label for="perNameUp">检查员</label>
+                            <div class="input-group" id="perNameUp">
+                                <input type="text" class="form-control  dropdown-toggle" data-toggle="dropdown"
+                                       readonly style="background-color: white"
+                                       v-model="visitName">
+                                <div class="input-group-btn">
+                                    <ul class="dropdown-menu" style="padding-left: 10px;width: 100%;">
+                                        <li v-for="(per,i) in relationVisitList" @click="perSelect(i)">${per.Realname}
+                                        </li>
+                                    </ul>
+                                </div><!-- /btn-group -->
+                            </div><!-- /input-group -->
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" @click="CancelBtnUpdate">取消
+                    </button>
+                    <button type="button" class="btn btn-primary" @click="OkBtnupdate">
+                        确定
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
+    <!-- 新增弹框 -->
+    <div class="modal fade" id="myModalAdd" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+
+                    <h4 class="modal-title" id="myModalLabelAdd">
+                        新增调查表
+                    </h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form role="form">
+                        <div class="form-group">
+                            <br>
+                            <label for="commAdd">所在社区</label>
+                            <div class="input-group" id="commAdd">
+                                <input type="text" class="form-control  dropdown-toggle" data-toggle="dropdown"
+                                       readonly style="background-color: white"
+                                       v-model="regionName">
+                                <div class="input-group-btn">
+                                    <ul class="dropdown-menu" style="padding-left: 10px;width: 100%;">
+                                        <li v-for="(com,i) in regionList" @click="regionSelect(i)">${com.Regionname}
+                                        </li>
+                                    </ul>
+                                </div><!-- /btn-group -->
+                            </div><!-- /input-group -->
+                            <br>
+                            <label for="busiNameAdd">网吧名称</label>
+                            <div class="input-group" id="busiNameAdd">
+                                <input type="text" class="form-control  dropdown-toggle" data-toggle="dropdown"
+                                       readonly style="background-color: white"
+                                       v-model="enterpriseName">
+                                <div class="input-group-btn">
+                                    <ul class="dropdown-menu" style="padding-left: 10px;width: 100%;">
+                                        <li v-for="(com,i) in relationBarList" @click="internetbarSelect(i)">
+                                            ${com.Enterprisename}
+                                        </li>
+                                    </ul>
+                                </div><!-- /btn-group -->
+                            </div><!-- /input-group -->
+                            <br>
+                            <label for="perNameAdd">调查员</label>
+                            <div class="input-group" id="perNameAdd">
+                                <input type="text" class="form-control  dropdown-toggle" data-toggle="dropdown"
+                                       readonly style="background-color: white"
+                                       v-model="visitName">
+                                <div class="input-group-btn">
+                                    <ul class="dropdown-menu" style="padding-left: 10px;width: 100%;">
+                                        <li v-for="(per,i) in relationVisitList" @click="perSelect(i)">${per.Realname}
+                                        </li>
+                                    </ul>
+                                </div><!-- /btn-group -->
+                            </div><!-- /input-group -->
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消
+                    </button>
+                    <button type="button" class="btn btn-primary" @click="OkBtnAdd">
+                        确定
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
+    <!-- 删除弹框 -->
+    <div class="modal fade" id="myModalDel" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+
+                    <h4 class="modal-title" id="myModalLabelDel">
+                        删除提示
+                    </h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h5>
+                        删除后数据不可恢复
+                    </h5>
+                    <p>是否确定删除?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消
+                    </button>
+                    <button type="button" class="btn btn-primary" @click="OkBtnDel">
+                        确定
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
+</div>
+</body>
+
+
+<script>
+    // import axios from "axios";
+    // import qs from 'qs'
+
+    new Vue({
+        delimiters: ['${', '}'],//修改vue的占位符设置,默认是双{},与beego冲突
+        el: "#app",
+        data() {
+            return {
+                regionList: [],//区县列表
+                barList: [],//网吧列表
+                relationBarList: [],//关联网吧列表
+                visitList: [],//调查员列表
+                relationVisitList: [],//关联调查员列表
+                taskList: [],//任务列表
+                queryFlag: 1,//查询控制
+                orderId: "",//单据id
+                regionId: "",//社区Id
+                regionName: "",//社区名
+                enterpriseId: "",//网吧id
+                enterpriseName: "",//网吧名称
+                visitId: "",//调查员id
+                visitName: "",//调查员名字
+                orderStatus: 1,
+            }
+        },
+        created() {
+            this.getRegionList();
+        },
+        watch: {
+            "queryFlag": function toggle() {
+                //初始化调用查询区县方法,查完之后flag设置为2,开始查询网吧信息
+                //查询完之后flag设置为3,开始查询调查员信息,查询完之后flag设置为4
+                //开始查询未办结任务列表
+                var _this = this;
+                if (_this.queryFlag == 2) {
+                    _this.getBarList();//查询网吧列表
+                } else if (_this.queryFlag == 3) {
+                    _this.getVisitList();//查询调查员列表
+                } else if (_this.queryFlag == 4) {
+                    _this.getTaskList();//查询任务列表
+                }
+            },
+        },
+        methods: {
+
+            //初始化任务列表结合
+            getTaskList() {
+                //查询当前用户未完结任务列表
+                axios.get("/admin/GetTaskList", {
+                    params: {orderstate: 3}//订单状态为3时,表示查询所有状态的任务
+                }).then(response => {
+                    if (response.data.ErrCode == -5) {
+                        showTips("用户未登录", "error");
+                        setTimeout(function () {
+                            var protocol = window.location.protocol;
+                            var host = window.location.host;
+                            top.location.href = protocol + "//" + host;
+                        }, 500);
+                    } else if (response.data.ErrCode == 0) {
+                        this.taskList = response.data.Result;
+                        for (var i = 0; i < response.data.Result.length; i++) {
+                            for (var j = 0; j < this.barList.length; j++) {
+                                if (this.taskList[i].Internetbarid == this.barList[j].Id) {
+                                    this.taskList[i].Internetbarid = this.barList[j].Enterprisename;//网吧名称
+                                }
+                            }
+                            for (var k = 0; k < this.regionList.length; k++) {
+                                if (this.taskList[i].Communityid == this.regionList[k].Id) {
+                                    this.taskList[i].Communityid = this.regionList[k].Regionname;//所属区县
+                                }
+                            }
+
+                            for (var n = 0; n < this.visitList.length; n++) {
+                                if (this.taskList[i].Investigatorid == this.visitList[n].Id) {
+                                    this.taskList[i].Investigatorid = this.visitList[n].Realname;//调查员
+                                }
+                            }
+                        }
+                    }
+                }).catch(error => {
+                    console.log("获取任务列表失败");
+                    console.log(error);
+                })
+            },
+
+            // 查询区县信息
+            getRegionList() {
+                axios.get("/admin/GetRegionList").then(repsonse => {
+                        if (repsonse.data.ErrCode == -5) {
+                            showTips("用户未登录", "error");
+                            setTimeout(function () {
+                                var protocol = window.location.protocol;
+                                var host = window.location.host;
+                                top.location.href = protocol + "//" + host;
+                            }, 500);
+                        } else if (repsonse.data.ErrCode == 0) {
+                            this.regionList = repsonse.data.Result;
+                            this.queryFlag = 2;
+                        } else {
+                            showTips("获取地区列表失败", "error");
+                        }
+                    }
+                ).catch(error => {
+                    console.log("获取地区列表失败");
+                    console.log(error);
+                })
+            },
+
+            //获取网吧信息
+            getBarList() {
+                axios.get("/admin/GetBarList").then(response => {
+                    if (response.data.ErrCode == -5) {
+                        showTips("用户未登录", "error");
+                        setTimeout(function () {
+                            var protocol = window.location.protocol;
+                            var host = window.location.host;
+                            top.location.href = protocol + "//" + host;
+                        }, 500);
+                    } else if (response.data.ErrCode == 0) {
+                        this.barList = response.data.Result;
+                        this.queryFlag = 3;
+                    } else {
+                        showTips("获取网吧列表失败", "error");
+                    }
+                }).catch(error => {
+                    console.log("获取网吧列表失败");
+                    console.log(error);
+                })
+            },
+
+            //查询调查员列表
+            getVisitList() {
+                axios.get("/admin/GetVisitList").then(response => {
+                    if (response.data.ErrCode == -5) {
+                        showTips("用户未登录", "error");
+                        setTimeout(function () {
+                            var protocol = window.location.protocol;
+                            var host = window.location.host;
+                            top.location.href = protocol + "//" + host;
+                        }, 500);
+                    } else if (response.data.ErrCode == 0) {
+                        this.visitList = response.data.Result;
+                        this.queryFlag = 4;
+                    }
+                }).catch(error => {
+                    console.log("获取调查员列表失败");
+                    console.log(error);
+                })
+            },
+
+            //删除确定
+            OkBtnDel() {
+                $("#myModalDel").modal('hide');
+                for (var i = 0; i < this.taskList.length; i++) {
+                    if (this.orderId == this.taskList[i].Id) {
+                        if (this.taskList[i].Orderstate == 2) {//已办结任务不可删除
+                            showTips("[已办结]任务不可删除", "error");
+                            return
+                        }
+                    }
+                }
+                //发送请求进行删除
+                var vm = this;
+                $.post("/admin/DelTaskInfo", {
+                    orderId: vm.orderId,
+                }, function (response) {
+                    if (response.ErrCode == -5) {
+                        showTips("用户未登录", "error");
+                        setTimeout(function () {
+                            var protocol = window.location.protocol;
+                            var host = window.location.host;
+                            top.location.href = protocol + "//" + host;
+                        }, 500);
+                    } else if (response.ErrCode == 0) {
+                        showTips("删除成功", "success");
+                        vm.getTaskList();
+                    } else {
+                        showTips(response.ErrMsg, "error");
+                    }
+                });
+
+                showTips("删除成功", "success");
+
+            },
+
+            //删除弹框
+            delInfo(index) {
+                this.orderId = this.taskList[index].Id;
+            },
+
+            //新增确定
+            OkBtnAdd() {
+                $("#myModalAdd").modal('hide');//隐藏弹框
+                if (this.regionId != 0 && this.regionId != "") {
+                    if (this.enterpriseId != 0 && this.enterpriseId != "") {
+                        if (this.visitId != "" && this.visitId != 0) {
+                            //发送新增请求到后台,调用刷新表格函数
+                            var vm = this;
+                            $.post("/admin/AddTaskInfo", {
+                                regionId: vm.regionId,
+                                enterpriseId: vm.enterpriseId,
+                                visitId: vm.visitId
+                            }, function (response) {
+                                if (response.ErrCode == -5) {
+                                    showTips("用户未登录", "error");
+                                    setTimeout(function () {
+                                        var protocol = window.location.protocol;
+                                        var host = window.location.host;
+                                        top.location.href = protocol + "//" + host;
+                                    }, 500);
+                                } else if (response.ErrCode == 0) {
+                                    showTips("添加任务成功", "success");
+                                    vm.regionId = "";
+                                    vm.regionName = "";
+                                    vm.enterpriseId = "";
+                                    vm.enterpriseName = "";
+                                    vm.visitId = "";
+                                    vm.visitName = "";
+                                    vm.getTaskList();
+                                } else {
+                                    showTips(response.ErrMsg, "error");
+                                }
+                            });
+
+                        } else {
+                            showTips("户主姓名不能为空", "error");
+                        }
+                    } else {
+                        showTips("走访员不能为空", "error");
+                    }
+                } else {
+                    showTips("社区不能为空", "error");
+                }
+            },
+
+            //选择网吧下拉框
+            internetbarSelect(index) {
+                this.enterpriseName = this.relationBarList[index].Enterprisename;
+                this.enterpriseId = this.relationBarList[index].Id;
+            },
+
+            //选择社区下拉框
+            regionSelect(index) {
+                this.regionName = this.regionList[index].Regionname;
+                this.regionId = this.regionList[index].Id;
+                this.enterpriseName = "";
+                this.visitName = "";
+                this.relationBarList = [];
+                this.relationVisitList = [];
+                for (var i = 0; i < this.barList.length; i++) {
+                    if (this.regionList[index].Id == this.barList[i].Communityid) {
+                        this.relationBarList.push(this.barList[i]);
+                    }
+                }
+
+                for (var i = 0; i < this.visitList.length; i++) {
+                    if (this.regionList[index].Id == this.visitList[i].Communityid) {
+                        this.relationVisitList.push(this.visitList[i]);
+                    }
+                }
+
+            },
+
+            //选择走访员下拉框
+            perSelect(index) {
+                this.visitName = this.relationVisitList[index].Realname;
+                this.visitId = this.relationVisitList[index].Id;
+            },
+
+            //修改取消
+            CancelBtnUpdate() {
+                this.regionId = "";
+                this.regionName = "";
+                this.enterpriseId = "";
+                this.enterpriseName = "";
+                this.visitId = "";
+                this.visitName = "";
+            },
+
+            //修改确定
+            OkBtnupdate() {
+                $("#myModal").modal('hide');//隐藏弹框
+                if (this.regionId != 0 && this.regionId != "") {
+                    if (this.enterpriseId != 0 && this.enterpriseId != "") {
+                        if (this.visitId != "" && this.visitId != 0) {
+                            //todo 发送修改请求到后台,调用刷新表格函数
+                            var vm = this;
+                            $.post("/admin/UpdateTaskInfo", {
+                                orderId: vm.orderId,
+                                regionId: vm.regionId,
+                                enterpriseId: vm.enterpriseId,
+                                visitId: vm.visitId
+                            }, function (response) {
+                                if (response.ErrCode == -5) {
+                                    showTips("用户未登录", "error");
+                                    setTimeout(function () {
+                                        var protocol = window.location.protocol;
+                                        var host = window.location.host;
+                                        top.location.href = protocol + "//" + host;
+                                    }, 500);
+                                } else if (response.ErrCode == 0) {
+                                    showTips("修改成功", "success");
+                                    vm.regionId = "";
+                                    vm.regionName = "";
+                                    vm.enterpriseId = "";
+                                    vm.enterpriseName = "";
+                                    vm.visitId = "";
+                                    vm.visitName = "";
+                                    vm.getTaskList();
+                                } else {
+                                    showTips(response.ErrMsg, "error");
+                                }
+                            });
+                        } else {
+                            showTips("调查员不能为空", "error");
+                        }
+                    } else {
+                        showTips("网吧不能为空", "error");
+                    }
+                } else {
+                    showTips("区县不能为空", "error");
+                }
+            },
+
+            //修改按钮
+            updateInfo(index) {
+                this.orderId = this.taskList[index].Id;
+                this.enterpriseName = this.taskList[index].Internetbarid;
+                for (var j = 0; j < this.barList.length; j++) {
+                    if (this.enterpriseName == this.barList[j].Enterprisename) {
+                        this.enterpriseId = this.barList[j].Id;//网吧编号
+                    }
+                }
+                this.regionName = this.taskList[index].Communityid;
+                for (var k = 0; k < this.regionList.length; k++) {
+                    if (this.regionName == this.regionList[k].Regionname) {
+                        this.regionId = this.regionList[k].Id;//所属区县编码
+                    }
+                }
+                this.visitName = this.taskList[index].Investigatorid;
+                for (var n = 0; n < this.visitList.length; n++) {
+                    if (this.visitName == this.visitList[n].Realname) {
+                        this.visitId = this.visitList[n].Id;//调查员
+                    }
+                }
+                this.relationBarList = [];
+                this.relationVisitList = [];
+                for (var i = 0; i < this.barList.length; i++) {
+                    if (this.regionId == this.barList[i].Communityid) {
+                        this.relationBarList.push(this.barList[i]);
+                    }
+                }
+
+                for (var i = 0; i < this.visitList.length; i++) {
+                    if (this.regionId == this.visitList[i].Communityid) {
+                        this.relationVisitList.push(this.visitList[i]);
+                    }
+                }
+            },
+        },
+    });
+</script>
+
+<style>
+
+    .tableDiv {
+        margin: 50px 50px;
+        background: url("/static/img/timg.jpg");
+        background-size: contain;
+    }
+
+    .addDiv {
+        margin: 10px 100px;
+        display: inline;
+        float: left;
+    }
+</style>
+</body>
+</html>

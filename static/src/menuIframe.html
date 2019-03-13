@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>后台管理</title>
+</head>
+<body>
+<div class="containerDiv" id="app">
+
+    <div class="vue-login-div ">
+        <ul>
+
+            <li><A class="hover" href="infoTable.html" target="myFrame">任务管理</A></li>
+
+            <li><A href="addQuery.html" target="myFrame">检查管理</A></li>
+
+            <li><A href="#">备用菜单</A></li>
+
+            <li><A href="#">备用菜单</A></li>
+
+            <li><A href="#">备用菜单</A></li>
+
+            <li><A href="#">备用菜单</A></li>
+
+            <li><A href="javascript:;" @click="logOut">退出登录</A></li>
+
+            <div id="lanPos"></div>
+
+        </ul>
+    </div>
+    <div class="iframeDiv">
+        <iframe src="http://localhost:8080/static/src/infoTable.html" frameborder="0" style="width: 100%; height: 100%;"
+                scrolling="yes" name="myFrame"></iframe>
+    </div>
+</div>
+</body>
+
+
+<script type="text/javascript" src="/static/js/vue.min.js"></script>
+<script type="text/javascript" src="/static/js/vue-resource.js"></script>
+<script type="text/javascript" src="/static/js/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="/static/js/popmsg.js"></script>
+<script type="text/javascript" src="/static/js/leftMenu.js"></script>
+<script type="text/javascript" src="/static/js/showTips.js"></script>
+<script type="text/javascript" src="/static/js/axios.js"></script>
+<script>
+    // import axios from "axios";
+    // import qs from "qs";
+
+    new Vue({
+        delimiters: ['${', '}'],//修改vue的占位符设置,默认是双{},与beego冲突
+        el: "#app",
+        data() {
+            return {
+                username: "",//用户名
+                pwd: "",//密码
+            }
+        },
+        methods: {
+            logOut() {
+                // 1、设置或获取整个 URL 为字符串
+                // console.log(window.location.href);
+                // 2、设置或获取 URL 的协议部分
+                // console.log(window.location.protocol);
+                // 3、设置或获取 URL 的主机部分
+                // console.log(window.location.host);
+                // 4、设置或获取与 URL 关联的端口号码
+                // console.log(window.location.port);
+                // 5、设置或获取与 URL 的路径部分（就是文件地址）
+                // console.log(window.location.pathname);
+                // 6、设置或获取 href 属性中跟在问号后面的部分
+                // console.log(window.location.search);
+                // 7、设置或获取 href 属性中在井号“#”后面的分段
+                // console.log(window.location.hash);
+                // var path = window.location.href;
+
+
+                $.ajax({
+                    type: "get",
+                    url: "/proc/Logout",
+                    success: function (data) {
+                        if (data.ErrCode == 0) {
+                            setTimeout(function () {
+                                var protocol = window.location.protocol;
+                                var host = window.location.host;
+                                top.location.href = protocol + "//" + host;
+                            }, 500);
+                        }
+                    }
+                })
+
+            },
+        },
+    });
+
+</script>
+
+<style>
+    body {
+        height: 100%;
+        background-color: #bbb;
+    }
+
+    /*input输入框*/
+    .vue-input {
+        display: inline-block;
+        width: 200px;
+        height: 30px;
+        line-height: 1.2;
+        padding: 4px 7px;
+        font-size: 12px;
+        border: 1px solid #dddee1;
+        border-radius: 4px;
+        color: #fff;
+        background-color: transparent;
+        background-image: none;
+        position: relative;
+        cursor: text;
+    }
+
+    .vue-input:hover {
+        border-color: #57a3f3;
+    }
+
+
+    input::-webkit-input-placeholder {
+        /* placeholder颜色  */
+        color: #aaa;
+        /* placeholder字体大小  */
+        font-size: 12px;
+        /* placeholder位置  */
+        text-align: left;
+    }
+
+    .vue-login-btn {
+        display: inline-block;
+        margin-bottom: 0;
+        font-weight: 400;
+        text-align: center;
+        vertical-align: middle;
+        line-height: 1.5;
+        width: 100%;
+        border: 1px solid transparent;
+        padding: 6px 15px;
+        font-size: 12px;
+        border-radius: 4px;
+    }
+
+    .vue-btn-warning {
+        height: 35px;
+        color: #fff;
+        background-color: orange;
+        border-color: #2d8cf0;
+    }
+
+    .vue-login-div {
+        float: left;
+        display: inline;
+        width: 230px;
+        /* margin: 300px auto; */
+        /* margin-left: -150px; */
+        border: 0px solid orange;
+    }
+
+    .containerDiv {
+        width: 100%;
+        float: left;
+        /*border: 1px solid red;*/
+        height: 99.8vh;
+        display: inline-flex;
+    }
+
+    .iframeDiv {
+        display: inline-block;
+        width: 100%;
+
+    }
+</style>
+
+<link rel="stylesheet" href="/static/css/menu.css"/>
+</body>
+</html>

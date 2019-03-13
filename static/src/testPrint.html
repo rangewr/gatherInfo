@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,minimal-ui">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-fullscreen" content="no">
+    <title>Title</title>
+</head>
+<link rel="stylesheet" href="/static/css/bootstrap.3.3.7.css">
+<script type="text/javascript" src="/static/js/vue.min.js"></script>
+<script type="text/javascript" src="/static/js/vue-resource.js"></script>
+<script type="text/javascript" src="/static/js/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="/static/js/popper.min.js"></script>
+<script type="text/javascript" src="/static/js/popmsg.js"></script>
+<script type="text/javascript" src="/static/js/showTips.js"></script>
+<script type="text/javascript" src="/static/js/axios.js"></script>
+<script type="text/javascript" src="/static/js/bootstrap.3.3.7.js"></script>
+<style type="text/css">  
+    table {
+    font-size: 18px;
+    border-collapse: collapse;
+    text-align: center;
+    margin: 0 auto;
+}
+
+    .al {
+    /* table宽、高度 ：210mm、297mm，这是A4纸的宽度、高度*/
+    width: 210mm;
+    height: 297mm;
+}
+
+ 
+ 
+
+@page {
+
+<!-- 纵向：-->
+
+   size:portrait;
+
+<!-- 横向：-->
+
+  size:landscape;
+
+   /* 
+    上外边距是 0mm
+右外边距是 10mm
+下外边距是 0mm
+左外边距是 10mm
+   */
+   margin: 0mm 10mm
+;
+ 
+}
+
+ </style>
+ 
+<body>
+<!--startprint-->
+   
+<table class="al" border="1">  
+       
+    <caption  align="center">
+            <br/>
+            <h1><strong>大量用血申请表</strong></h1>  
+           
+    </caption>
+               
+    <caption  >
+                   
+        <div style="float: left;">
+                        <label>用血科室:</label>
+                        <input type="text" name="with_blood_department" value="科室" readonly class="inp2"/>
+                       
+        </div>
+                   
+        <div style="float: right;">
+                        <label>申请日期:</label>
+                       
+            <fmt:parseDate value="2018-06-06" pattern='yyyy-MM-dd' var="per"/>
+                       
+            <fmt:formatDate value="${per }" pattern='yyyy年MM月dd日'/>
+                       
+        </div>
+                   
+    </caption>
+               
+           
+    <tr>  
+                   
+        <th align="center">患者<br/>姓名</th>
+         
+                   
+        <td colspan="2" width="20%"><input type="text" value="姓名" readonly/></td>
+         
+                   
+        <th align="center" width="10%">性别</th>
+         
+                   
+        <td colspan="2" width="8%"><input type="text" value="男" readonly/></td>
+         
+                   
+        <th align="center" width="10%">年龄</th>
+         
+                   
+        <td colspan="2" width="8%"><input type="text" value="12" readonly/></td>
+         
+                   
+        <th align="center">住院号</th>
+         
+                            
+        <td colspan="2" width="25%"><input type="text" value="7898" readonly/></td>
+         
+               
+    </tr>
+     
+           
+       
+</table>
+ 
+    <!--endprint-->
+   
+
+
+ 
+<button onclick="toPrint()">点击打印</button>
+
+<script>
+    function toPrint() {
+        var go = confirm("是否需要打印？");
+        if (go) {
+            var oldstr = document.body.innerHTML;
+            var headStr = "<html><head><title></title></head><body>";
+            var footStr = "</body>";
+            var content = $("#all").html();
+            console.log(content)
+            var newStr = headStr + content + footStr;
+            console.log(newStr);
+            document.body.innerHTML = newStr;
+            window.print();
+            document.body.innerHTML = oldstr;
+        }
+    }
+</script>
+ 
+<script src="js/jquery.min.js?v=2.1.4"></script>
+    
+<script>
+
+    //打印
+    function doPrint() {
+//document.getElementById("table").style.margin="10px";
+
+        bdhtml = window.document.body.innerHTML; //获取当前页的html代码   
+        sprnstr = "<!--startprint-->"; //设置打印开始区域    
+        eprnstr = "<!--endprint-->"; //设置打印结束区域 
+        prnhtml = bdhtml.substr(bdhtml.indexOf(sprnstr) + 18); //从开始代码向后取html    
+        prnhtml = prnhtml.substring(0, prnhtml.indexOf(eprnstr)); //从结束代码向前取html    
+        window.document.body.innerHTML = prnhtml;   //将html代码 放在页面上，方便打印
+
+        //打印之前设置IE打印时不打印页眉 、页脚
+        if (!!window.ActiveXObject || "ActiveXObject" in window) {
+            remove_ie_header_and_footer();
+        }
+        //打印
+        window.print();
+        window.document.body.innerHTML = bdhtml; //打印完成后将html代码还原
+
+    };
+
+    //打印之前设置IE打印时不打印页眉 、页脚
+    function remove_ie_header_and_footer() {
+        var hkey_root, hkey_path, hkey_key;
+        hkey_path = "HKEY_CURRENT_USER\\Software\\Microsoft\\Internet Explorer\\PageSetup\\";
+        try {
+            var RegWsh = new ActiveXObject("WScript.Shell");
+            RegWsh.RegWrite(hkey_path + "header", "");          //设置页眉为空
+            RegWsh.RegWrite(hkey_path + "footer", ""); //设置页脚为空
+        } catch (e) {
+        }
+    }
+
+
+</script>
+
+</body>
+</html>

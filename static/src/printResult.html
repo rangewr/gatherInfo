@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,minimal-ui">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-fullscreen" content="no">
+    <title>打印检查结果</title>
+</head>
+<link rel="stylesheet" href="/static/css/bootstrap.3.3.7.css">
+<script type="text/javascript" src="/static/js/vue.min.js"></script>
+<script type="text/javascript" src="/static/js/vue-resource.js"></script>
+<script type="text/javascript" src="/static/js/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="/static/js/popper.min.js"></script>
+<script type="text/javascript" src="/static/js/popmsg.js"></script>
+<script type="text/javascript" src="/static/js/showTips.js"></script>
+<script type="text/javascript" src="/static/js/axios.js"></script>
+<script type="text/javascript" src="/static/js/bootstrap.3.3.7.js"></script>
+
+<body>
+<div id="app">
+
+    <div id="all">
+        <!--startprint-->
+        <div style="text-align: center;padding: 25px;">
+            <h1 style="margin: 0px auto">网吧日常检查表</h1>
+        </div>
+        <table border="2" style="width: 100%; text-align: center">
+            <tr>
+                <td width="20%">网吧名称</td>
+                <td width="30%"></td>
+                <td width="20%">所属区县</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>
+                    网吧地址
+                </td>
+                <td colspan="3"></td>
+            </tr>
+            <tr>
+                <td>
+                    检查时间
+                </td>
+                <td colspan="3"></td>
+            </tr>
+            <tr>
+                <td rowspan="3">检察人员</td>
+                <td>姓名</td>
+                <td colspan="2">单位</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td colspan="2">赤峰市公安局//分局网安大队</td>
+
+            </tr>
+            <tr>
+                <td></td>
+                <td colspan="2">赤峰市公安局//分局网安大队</td>
+            </tr>
+            <tr>
+                <td rowspan="4">检查项目</td>
+                <td>项目名称</td>
+                <td>是否合格</td>
+                <td>图片</td>
+            </tr>
+            <tr>
+                <td>安全管理软件上网卡后台连接正常</td>
+                <td>不合格</td>
+                <td>
+                    <img src="/static/upload/469586399167f5a3f273378d960d96e5.jpg"
+                         width="45%"
+                    >
+                    <img src="/static/upload/2bc334e88ddc8d59ed494eb350b0b67e.jpg" width="45%">
+                    <img src="/static/upload/51735.png" width="45%">
+                </td>
+            </tr>
+            <tr>
+                <td>防火紧急出口没有或者堵塞</td>
+                <td>合格</td>
+                <td>
+                    无
+                </td>
+            </tr>
+            <tr>
+                <td>未成年人上网人数过多</td>
+                <td>不合格</td>
+                <td>
+                    <img src="/static/upload/469586399167f5a3f273378d960d96e5.jpg" width="45%">
+                    <img src="/static/upload/priscr.png" width="45%">
+                    <!--<img src="/static/upload/51735.png" width="45%">-->
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="5">网吧上网实名制落实</td>
+                <td>出生年月日</td>
+                <td>姓名</td>
+                <td>备注</td>
+            </tr>
+            <tr>
+                <td>1992-04-29</td>
+                <td>张三</td>
+                <td>身份证遗失,临时需要使用网络</td>
+            </tr>
+            <tr>
+                <td>1999-05-19</td>
+                <td>李四</td>
+                <td>身份证未携带</td>
+            </tr>
+            <tr>
+                <td>2002-04-21</td>
+                <td>王二麻子</td>
+                <td>未满十八周岁,无身份证</td>
+            </tr>
+            <tr>
+                <td>2012-05-10</td>
+                <td>小淘气</td>
+                <td>父亲带着来上网,父亲临时出去了,儿子玩一会</td>
+            </tr>
+
+            <tr>
+                <td colspan="2">检查人(签名)</td>
+                <td colspan="2"></td>
+            </tr>
+            <tr>
+                <td colspan="2">记录人(签名)</td>
+                <td colspan="2"></td>
+            </tr>
+            <tr>
+                <td colspan="2">网吧法人代表、负责人或工作人员(签名)</td>
+                <td colspan="2"></td>
+            </tr>
+        </table>
+        <br>
+        <p>检查项目共计12项,有两项不合格
+        </p>
+        <p>抽查上网实名制落实情况,有4人不符合情况</p>
+        <br>
+        <!--endprint-->
+    </div>
+
+
+    <div id="printOrder">
+        <button class="btn btn-default" @click="printOrderInfo">打印检查单</button>
+    </div>
+    <br><br><br>
+
+    <div class="modal fade" id="myModalImg" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <img src="" width="100%" id="modalImg">
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+</div>
+</body>
+
+<script>
+    new Vue({
+        delimiters: ['${', '}'],//修改vue的占位符设置,默认是双{},与beego冲突
+        el: "#app",
+        data() {
+            return {
+                imgPath: "",
+            }
+        },
+        methods: {
+            printOrderInfo() {
+                // $(this).css("display", "none");
+                var headstr = "<html><head><title></title></head><body>";
+                var footstr = "</body>";
+                var printData = document.getElementById("all").innerHTML;// 获得 div 里的所有 html 数据
+                var oldstr = document.body.innerHTML;
+                try {
+                    var Wsh = new ActiveXObject("WScript.Shell");
+                    HKEY_Key = "header";
+                    Wsh.RegWrite(HKEY_Root + HKEY_Path + HKEY_Key, "");
+                    HKEY_Key = "footer";
+                    Wsh.RegWrite(HKEY_Root + HKEY_Path + HKEY_Key, "");
+                } catch (e) {
+                }
+                document.body.innerHTML = headstr + printData + footstr;
+                window.print();
+                document.body.innerHTML = oldstr;
+                return false;
+
+                // alert("printOrderInfo");
+            },
+            // clickImg() {
+            //     var _this = $(this);
+            //     var scrImg = _this.attr("src");
+            //
+            //     console.log(_this);
+            //     $("#modalImg").attr("src", scrImg);
+            //
+            //     // this.imgPath = path;
+            // },
+        },
+    });
+</script>
+
+<style>
+    @media print {
+        @page {
+            size: auto;   /* auto is the current printer page size */
+            margin: 0mm;  /* this affects the margin in the printer settings */
+        }
+
+        #all {
+            display: block;
+        }
+
+        .nprint {
+            display: none;
+        }
+    }
+
+    #all {
+        /*width: 210mm;*/
+        margin: 10px auto;
+        background-color: #dcdcdc;
+        padding: 25px;
+    }
+
+    #all tr {
+        height: 40px;
+    }
+
+    #printOrder {
+        /*width: 210mm;*/
+        margin: 0px auto;
+        text-align: center;
+        padding: 25px;
+    }
+</style>
+</html>
